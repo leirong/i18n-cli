@@ -13,6 +13,8 @@
     "README.md"
   ],
   "scripts": {
+    "build": "tsc",
+    "build:w": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -24,12 +26,14 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.13.10",
     "typescript": "^5.8.2"
   },
   "dependencies": {
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
-    "xlsx": "^0.18.5"
+    "exceljs": "^4.4.0",
+    "lodash-es": "^4.17.21"
   }
 }
