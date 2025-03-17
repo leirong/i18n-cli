@@ -1,6 +1,6 @@
 {
   "name": "@lr-fe/i18n-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -15,6 +15,9 @@
   "scripts": {
     "build": "tsc",
     "build:w": "tsc -w",
+    "changeset": "changeset",
+    "ver": "changeset version",
+    "pub": "npm run build && changeset publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -26,8 +29,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@changesets/cli": "^2.28.1",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.13.10",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier-plugin-packagejson": "^2.5.10",
     "typescript": "^5.8.2"
   },
   "dependencies": {
