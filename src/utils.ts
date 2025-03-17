@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import ExcelJS, { Cell, Row, Worksheet } from 'exceljs'
 import path from 'node:path'
 import { set } from 'lodash-es'
+import { FileType } from './constants.js'
 
 /**
  * 解析excel文件
@@ -55,12 +56,6 @@ export async function parseExcel(excelFilePath: string) {
   } catch (error) {
     throw new Error('parse excel file failed')
   }
-}
-
-export enum FileType {
-  Json = 'json',
-  Js = 'js',
-  Ts = 'ts',
 }
 
 const handleFileInfo = {
@@ -127,6 +122,12 @@ const handleLocalesMap = {
   }),
 }
 
+/**
+ * 将多语言文件内容写入指定excel文件
+ * @param originFilePath 源文件路径
+ * @param excelFilePath excel文件路径
+ * @param fileType 文件类型
+ */
 export async function gExcel(originFilePath: string, excelFilePath: string, fileType: FileType) {
   const originFiles = fs.readdirSync(originFilePath)
   const files = originFiles.filter((file) => file.endsWith(fileType))

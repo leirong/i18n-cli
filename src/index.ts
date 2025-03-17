@@ -1,13 +1,19 @@
 import { Command } from 'commander'
-import { FileType, gExcel, gLocales } from './utils.js'
+import { gExcel, gLocales } from './utils.js'
 import chalk from 'chalk'
+import { FileType } from './constants.js'
 
 const program = new Command()
 
 const allowedFileTypes = Object.values(FileType)
 
 program.name('excel i18n tool').description('多语言文件转excel文件、excel文件转多语言文件工具').version('1.0.0')
-
+function argValidator(fileType: FileType) {
+  const allowedFileTypes = Object.values(FileType)
+  if (!allowedFileTypes.includes(fileType)) {
+    throw new Error(`不支持的文件类型: ${fileType}，支持的文件类型有: ${allowedFileTypes.join('、')}`)
+  }
+}
 program
   .command('glocales')
   .description(`将excel中的数据生成${allowedFileTypes.join('、')}文件`)
@@ -18,10 +24,7 @@ program
   .action((excelFilePath, targetFilePath, fileType, options) => {
     const { nested } = options
     try {
-      const allowedFileTypes = Object.values(FileType)
-      if (!allowedFileTypes.includes(fileType)) {
-        throw new Error(`不支持的文件类型: ${fileType}，支持的文件类型有: ${allowedFileTypes.join('、')}`)
-      }
+      argValidator(fileType)
       gLocales(excelFilePath, targetFilePath, fileType, nested)
     } catch (error: any) {
       console.log(chalk.red(error.message))
@@ -36,10 +39,7 @@ program
   .argument('<fileType>', '文件类型，支持json、js、ts')
   .action((originFilePath, excelFilePath, fileType) => {
     try {
-      const allowedFileTypes = Object.values(FileType)
-      if (!allowedFileTypes.includes(fileType)) {
-        throw new Error(`不支持的文件类型: ${fileType}，支持的文件类型有: ${allowedFileTypes.join('、')}`)
-      }
+      argValidator(fileType)
       gExcel(originFilePath, excelFilePath, fileType)
     } catch (error: any) {
       console.log(chalk.red(error.message))
