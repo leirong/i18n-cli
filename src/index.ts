@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Command } from 'commander'
 import { gExcel, gLocales } from './utils.js'
 import chalk from 'chalk'

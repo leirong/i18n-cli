@@ -1,5 +1,11 @@
 # @lr-fe/i18n-cli
 
+## 1.0.3
+
+### Patch Changes
+
+- add shebang for node script
+
 ## 1.0.2
 
 ### Patch Changes
