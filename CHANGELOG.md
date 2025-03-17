@@ -1,5 +1,11 @@
 # @lr-fe/i18n-cli
 
+## 1.0.4
+
+### Patch Changes
+
+- 修复嵌套结构转excel失败的bug
+
 ## 1.0.3
 
 ### Patch Changes

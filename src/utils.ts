@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import ExcelJS, { Cell, Row, Worksheet } from 'exceljs'
 import path from 'node:path'
-import { set } from 'lodash-es'
+import { isObject, set, transform } from 'lodash-es'
 import { FileType } from './constants.js'
 
 /**
@@ -86,11 +86,14 @@ export async function gLocales(excelFilePath: string, targetFilePath: string, fi
 
   if (nested) {
     let nestedResult: Record<string, any> = {}
-    Object.keys(result).forEach((lang) => {
-      Object.keys(result[lang]).forEach((key) => {
-        set(nestedResult, `${lang}.${key}`, result[lang][key])
-      })
-    })
+    for (const lang in result) {
+      if (Object.prototype.hasOwnProperty.call(result, lang)) {
+        const langData = result[lang]
+        for (const key in langData) {
+          set(nestedResult, `${lang}.${key}`, langData[key])
+        }
+      }
+    }
     result = nestedResult
   }
 
@@ -123,6 +126,28 @@ const handleLocalesMap = {
 }
 
 /**
+ * 将嵌套对象扁平化
+ * @param o 对象
+ * @param parentKey 父级key
+ * @param result 结果
+ * @returns
+ */
+function flatObj(o: any, parentKey: string, result: Record<string, any> = {}) {
+  return transform(
+    o,
+    (pre, value, key: string) => {
+      const newKey = parentKey ? `${parentKey}.${key}` : key
+      if (isObject(value)) {
+        return flatObj(value, newKey, pre)
+      } else {
+        pre[newKey] = value
+      }
+    },
+    result,
+  )
+}
+
+/**
  * 将多语言文件内容写入指定excel文件
  * @param originFilePath 源文件路径
  * @param excelFilePath excel文件路径
@@ -141,7 +166,8 @@ export async function gExcel(originFilePath: string, excelFilePath: string, file
     const { lang, fileContent } = handleLocalesMap[fileType](file, filePath)
     try {
       const jsonData = JSON.parse(fileContent)
-      langMap[lang] = jsonData
+      const flatedJsonData = flatObj(jsonData, '', {})
+      langMap[lang] = flatedJsonData
     } catch (error) {
       throw new Error(`Invalid ${fileType} file: ${filePath}`)
     }
@@ -150,20 +176,24 @@ export async function gExcel(originFilePath: string, excelFilePath: string, file
   const header = ['_key_', ...Object.keys(langMap)]
   worksheet.columns = header.map((key) => ({ header: key, key }))
   const rows: Array<Record<string, any>> = []
-  Object.keys(langMap).forEach((lang) => {
-    Object.keys(langMap[lang]).forEach((key) => {
-      if (rows.find((row) => row._key_ === key)) {
-        rows.forEach((row) => {
-          if (row._key_ === key) {
-            row[lang] = langMap[lang][key]
-          }
-        })
-      } else {
-        const row = { _key_: key, [lang]: langMap[lang][key] }
-        rows.push(row)
+
+  for (const lang in langMap) {
+    if (Object.prototype.hasOwnProperty.call(langMap, lang)) {
+      const langData = langMap[lang]
+      for (const key in langData) {
+        if (rows.find((row) => row._key_ === key)) {
+          rows.forEach((row) => {
+            if (row._key_ === key) {
+              row[lang] = langData[key]
+            }
+          })
+        } else {
+          const row = { _key_: key, [lang]: langData[key] }
+          rows.push(row)
+        }
       }
-    })
-  })
+    }
+  }
   worksheet.addRows(rows)
   workbook.xlsx.writeFile(excelFilePath)
 }
