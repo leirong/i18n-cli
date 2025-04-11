@@ -1,5 +1,11 @@
 # @lr-fe/i18n-cli
 
+## 1.0.5
+
+### Patch Changes
+
+- 修复读取js、ts文件内容转对象失败的bug
+
 ## 1.0.4
 
 ### Patch Changes
