@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import fse from 'fs-extra'
 import ExcelJS, { Cell, Row, Worksheet } from 'exceljs'
 import path from 'node:path'
 import { isObject, set, transform } from 'lodash-es'
@@ -110,19 +111,36 @@ export async function gLocales(excelFilePath: string, targetFilePath: string, fi
   })
 }
 
+/**
+ * 读取ts、js文件内容并转换为对象
+ * @param filePath 目标文件路径
+ * @returns
+ */
+const readTsOrJSAsObject = (filePath: string) => {
+  const strObj = fs.readFileSync(filePath, { encoding: 'utf-8' }).replace(/^\s*export\s+default\s*/, '')
+  const obj = new Function(`"use strict"; return (${strObj})`)()
+  return obj
+}
+
 const handleLocalesMap = {
   [FileType.Json]: (fileName: string, filePath: string) => ({
     lang: fileName.replace('.json', ''),
-    fileContent: fs.readFileSync(filePath, { encoding: 'utf-8' }),
+    fileContent: fse.readJsonSync(filePath, { encoding: 'utf-8' }),
   }),
-  [FileType.Js]: (fileName: string, filePath: string) => ({
-    lang: fileName.replace('.js', ''),
-    fileContent: fs.readFileSync(filePath, { encoding: 'utf-8' }).replace(/^\s*export\s+default\s*/, ''),
-  }),
-  [FileType.Ts]: (fileName: string, filePath: string) => ({
-    lang: fileName.replace('.ts', ''),
-    fileContent: fs.readFileSync(filePath, { encoding: 'utf-8' }).replace(/^\s*export\s+default\s*/, ''),
-  }),
+  [FileType.Js]: (fileName: string, filePath: string) => {
+    const fileContent = readTsOrJSAsObject(filePath)
+    return {
+      lang: fileName.replace('.js', ''),
+      fileContent,
+    }
+  },
+  [FileType.Ts]: (fileName: string, filePath: string) => {
+    const fileContent = readTsOrJSAsObject(filePath)
+    return {
+      lang: fileName.replace('.ts', ''),
+      fileContent,
+    }
+  },
 }
 
 /**
@@ -162,14 +180,13 @@ export async function gExcel(originFilePath: string, excelFilePath: string, file
   const langMap: Record<string, any> = {}
 
   files.forEach((file) => {
-    const filePath = path.join(originFilePath, file)
-    const { lang, fileContent } = handleLocalesMap[fileType](file, filePath)
+    const filePath = path.resolve(process.cwd(), originFilePath, file)
     try {
-      const jsonData = JSON.parse(fileContent)
-      const flatedJsonData = flatObj(jsonData, '', {})
+      const { lang, fileContent } = handleLocalesMap[fileType](file, filePath)
+      const flatedJsonData = flatObj(fileContent, '', {})
       langMap[lang] = flatedJsonData
     } catch (error) {
-      throw new Error(`Invalid ${fileType} file: ${filePath}`)
+      throw new Error(`Invalid ${fileType} file: ${filePath}, error: ${error}`)
     }
   })
 
