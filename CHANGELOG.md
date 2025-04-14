@@ -1,5 +1,11 @@
 # @lr-fe/i18n-cli
 
+## 1.0.6
+
+### Patch Changes
+
+- fix: 更新描述信息,版本,name
+
 ## 1.0.5
 
 ### Patch Changes

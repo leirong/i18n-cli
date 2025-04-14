@@ -1,6 +1,6 @@
 {
   "name": "@lr-fe/i18n-cli",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
@@ -17,8 +17,7 @@
     "build:w": "tsc -w",
     "changeset": "changeset",
     "ver": "changeset version",
-    "pub": "npm run build && changeset publish",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pub": "npm run build && changeset publish"
   },
   "keywords": [
     "i18n",
