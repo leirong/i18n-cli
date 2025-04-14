@@ -3,13 +3,15 @@ import { Command } from 'commander'
 import { gExcel, gLocales } from './utils.js'
 import chalk from 'chalk'
 import { FileType } from './constants.js'
-import packageJson from '../package.json' with { type: 'json' }
+import fs from 'fs-extra'
+import path from 'node:path'
+const pkgJson = fs.readJsonSync(path.join(import.meta.dirname, '../package.json'))
 
 const program = new Command()
 
 const allowedFileTypes = Object.values(FileType)
 
-program.name(packageJson.name).description(packageJson.description).version(packageJson.version)
+program.name(pkgJson.name).description(pkgJson.description).version(pkgJson.version)
 function argValidator(fileType: FileType) {
   const allowedFileTypes = Object.values(FileType)
   if (!allowedFileTypes.includes(fileType)) {

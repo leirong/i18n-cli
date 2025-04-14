@@ -1,5 +1,11 @@
 # @lr-fe/i18n-cli
 
+## 1.0.7
+
+### Patch Changes
+
+- 读取package.json获取描述版本等信息
+
 ## 1.0.6
 
 ### Patch Changes
