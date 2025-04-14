@@ -3,12 +3,13 @@ import { Command } from 'commander'
 import { gExcel, gLocales } from './utils.js'
 import chalk from 'chalk'
 import { FileType } from './constants.js'
+import packageJson from '../package.json' with { type: 'json' }
 
 const program = new Command()
 
 const allowedFileTypes = Object.values(FileType)
 
-program.name('excel i18n tool').description('多语言文件转excel文件、excel文件转多语言文件工具').version('1.0.0')
+program.name(packageJson.name).description(packageJson.description).version(packageJson.version)
 function argValidator(fileType: FileType) {
   const allowedFileTypes = Object.values(FileType)
   if (!allowedFileTypes.includes(fileType)) {
