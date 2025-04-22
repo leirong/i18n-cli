@@ -1,5 +1,11 @@
 # @lr-fe/i18n-cli
 
+## 1.1.0
+
+### Minor Changes
+
+- 生成的多语言文件支持cjs格式
+
 ## 1.0.7
 
 ### Patch Changes

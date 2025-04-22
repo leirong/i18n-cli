@@ -24,12 +24,13 @@ program
   .argument('<excelFilePath>', 'excel文件路径')
   .argument('<targetFilePath>', 'json文件路径')
   .argument('<fileType>', '文件类型，支持json、js、ts')
-  .option('-n, --nested', '是否嵌套结构，默认为false', false)
+  .option('-n, --nested', '是否嵌套结构，默认为 false', false)
+  .option('-c, --cjs', '是否生成 CommonJS 模块的多语言文件，默认为 false', false)
   .action((excelFilePath, targetFilePath, fileType, options) => {
-    const { nested } = options
+    const { nested, cjs } = options
     try {
       argValidator(fileType)
-      gLocales(excelFilePath, targetFilePath, fileType, nested)
+      gLocales(excelFilePath, targetFilePath, fileType, nested, cjs)
     } catch (error: any) {
       console.log(chalk.red(error.message))
     }

@@ -64,9 +64,16 @@ const handleFileInfo = {
     fileName: `${name}.${FileType.Json}`,
     fileContent: JSON.stringify(content, null, 2),
   }),
-  [FileType.Js]: (name: string, content: Record<string, any>) => ({
+  [FileType.Js]: (name: string, content: Record<string, any>, cjs: boolean) => {
+    const moduleType = cjs ? 'module.exports = ' : 'export default '
+    return {
+      fileName: `${name}.${FileType.Js}`,
+      fileContent: `${moduleType}${JSON.stringify(content, null, 2)}`,
+    }
+  },
+  cjs: (name: string, content: Record<string, any>) => ({
     fileName: `${name}.${FileType.Js}`,
-    fileContent: `export default ${JSON.stringify(content, null, 2)}`,
+    fileContent: `module.exports = ${JSON.stringify(content, null, 2)}`,
   }),
   [FileType.Ts]: (name: string, content: Record<string, any>) => ({
     fileName: `${name}.${FileType.Ts}`,
@@ -80,9 +87,16 @@ const handleFileInfo = {
  * @param targetFilePath 目标文件路径
  * @param fileType 目标文件类型
  * @param nested 是否嵌套结构，默认为false
+ * @param cjs 是否使用CommonJS模块，默认为false
  * @returns
  */
-export async function gLocales(excelFilePath: string, targetFilePath: string, fileType: FileType, nested = false) {
+export async function gLocales(
+  excelFilePath: string,
+  targetFilePath: string,
+  fileType: FileType,
+  nested = false,
+  cjs = false,
+) {
   let result = await parseExcel(excelFilePath)
 
   if (nested) {
@@ -99,7 +113,7 @@ export async function gLocales(excelFilePath: string, targetFilePath: string, fi
   }
 
   Object.keys(result).forEach((lang) => {
-    const { fileName, fileContent } = handleFileInfo[fileType](lang, result[lang])
+    const { fileName, fileContent } = handleFileInfo[fileType](lang, result[lang], cjs)
     const targetPath = path.join(process.cwd(), targetFilePath, fileName)
 
     if (!fs.existsSync(targetFilePath)) {
@@ -117,7 +131,11 @@ export async function gLocales(excelFilePath: string, targetFilePath: string, fi
  * @returns
  */
 const readTsOrJSAsObject = (filePath: string) => {
-  const strObj = fs.readFileSync(filePath, { encoding: 'utf-8' }).replace(/^\s*export\s+default\s*/, '')
+  const fileContent = fs.readFileSync(filePath, { encoding: 'utf-8' })
+  let strObj = fileContent.replace(/^\s*export\s+default\s*/, '')
+  if (isCjs(filePath)) {
+    strObj = fileContent.replace(/^\s*module\.exports\s*=\s*/, '')
+  }
   const obj = new Function(`"use strict"; return (${strObj})`)()
   return obj
 }
@@ -163,6 +181,10 @@ function flatObj(o: any, parentKey: string, result: Record<string, any> = {}) {
     },
     result,
   )
+}
+
+function isCjs(filePath: string) {
+  return /module\.exports/.test(fs.readFileSync(filePath, { encoding: 'utf-8' }))
 }
 
 /**

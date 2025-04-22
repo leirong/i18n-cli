@@ -39,7 +39,9 @@ i18n glocales <excel文件路径> <目标文件夹路径> <文件类型>
   选项：
 
 - -n, --nested : 是否生成嵌套结构的多语言文件，默认为 false
-  示例：
+- -c, --cjs : 是否生成 CommonJS 模块的多语言文件，默认为 false
+
+示例：
 
 1.  生成 json 格式的多语言文件
 
@@ -49,11 +51,17 @@ i18n glocales ./language.xlsx ./locales json
 
 ```javascript
 {
-  hello: '你好',
-  name: '姓名',
-  age: '年龄',
-  msg.success: "操作成功",
-  msg.error: "操作失败",
+  "hello": "你好",
+  "name": "姓名",
+  "age": "年龄",
+  "msg.sucess": "操作成功",
+  "msg.error": "操作失败",
+  "msg.error.unknown": "未知错误",
+  "ranking.0": "第一名",
+  "ranking.1": "第二名",
+  "ranking.2": "第三名",
+  "names.0.name": "张三",
+  "names.1.name": "李四"
 }
 ```
 
@@ -69,9 +77,20 @@ export default {
   name: '姓名',
   age: '年龄',
   msg: {
-    success: '操作成功',
-    error: '操作失败',
+    sucess: '操作成功',
+    error: {
+      unknown: '未知错误',
+    },
   },
+  ranking: ['第一名', '第二名', '第三名'],
+  names: [
+    {
+      name: '张三',
+    },
+    {
+      name: '李四',
+    },
+  ],
 }
 ```
 
@@ -86,12 +105,69 @@ export default {
   'hello': '你好',
   'name': '姓名',
   'age': '年龄',
-  'msg.success': '操作成功',
+  'msg.sucess': '操作成功',
   'msg.error': '操作失败',
+  'msg.error.unknown': '未知错误',
+  'ranking.0': '第一名',
+  'ranking.1': '第二名',
+  'ranking.2': '第三名',
+  'names.0.name': '张三',
+  'names.1.name': '李四',
 }
 ```
 
-4. 生成 ts 嵌套格式的多语言文件
+4. 生成 CommonJS 模块的多语言js文件
+
+```bash
+i18n glocales ./language.xlsx ./locales js -c
+```
+
+```javascript
+module.exports = {
+  'hello': '你好',
+  'name': '姓名',
+  'age': '年龄',
+  'msg.sucess': '操作成功',
+  'msg.error': '操作失败',
+  'msg.error.unknown': '未知错误',
+  'ranking.0': '第一名',
+  'ranking.1': '第二名',
+  'ranking.2': '第三名',
+  'names.0.name': '张三',
+  'names.1.name': '李四',
+}
+```
+
+5. 生成 CommonJS 模块的嵌套结构多语言js文件
+
+```bash
+i18n glocales ./language.xlsx ./locales js -n -c
+```
+
+```javascript
+module.exports = {
+  hello: '你好',
+  name: '姓名',
+  age: '年龄',
+  msg: {
+    sucess: '操作成功',
+    error: {
+      unknown: '未知错误',
+    },
+  },
+  ranking: ['第一名', '第二名', '第三名'],
+  names: [
+    {
+      name: '张三',
+    },
+    {
+      name: '李四',
+    },
+  ],
+}
+```
+
+6. 生成 ts 嵌套格式的多语言文件
 
 ```bash
 i18n glocales ./language.xlsx ./locales ts --nested
@@ -103,9 +179,20 @@ export default {
   name: '姓名',
   age: '年龄',
   msg: {
-    success: '操作成功',
-    error: '操作失败',
+    sucess: '操作成功',
+    error: {
+      unknown: '未知错误',
+    },
   },
+  ranking: ['第一名', '第二名', '第三名'],
+  names: [
+    {
+      name: '张三',
+    },
+    {
+      name: '李四',
+    },
+  ],
 }
 ```
 
@@ -149,13 +236,19 @@ Excel 文件必须包含以下格式：
 - 其他列为对应语言的翻译内容
   示例：
 
-  | \_key\_    | zh-cn    | zh-tw    | en-us             | ko-kr      | ja-jp    |
-  | ---------- | -------- | -------- | ----------------- | ---------- | -------- |
-  | hello      | 你好     | 你好     | Hello             | 안녕하세요 | 你好     |
-  | name       | 姓名     | 姓名     | Name              | 이름       | 名前     |
-  | age        | 年龄     | 年齡     | Age               | 나이       | 年齢     |
-  | msg.sucess | 操作成功 | 操作成功 | Operation success | 작업 성공  | 操作成功 |
-  | msg.error  | 操作失败 | 操作失敗 | Operation failed  | 작업 실패  | 操作失败 |
+  | \_key\_           | zh-cn    | zh-tw    | en-us             | ko-kr           | ja-jp        |
+  | ----------------- | -------- | -------- | ----------------- | --------------- | ------------ |
+  | hello             | 你好     | 你好     | Hello             | 안녕하세요      | 你好         |
+  | name              | 姓名     | 姓名     | Name              | 이름            | 名前         |
+  | age               | 年龄     | 年齡     | Age               | 나이            | 年齢         |
+  | msg.sucess        | 操作成功 | 操作成功 | Operation success | 작업 성공       | 操作成功     |
+  | msg.error         | 操作失败 | 操作失敗 | Operation failed  | 작업 실패       | 操作失败     |
+  | msg.error.unknown | 未知错误 | 未知錯誤 | Unknown error     | 알 수 없는 오류 | 不明なエラー |
+  | ranking.0         | 第一名   | 第一名   | First place       | 第一名          | 第一名       |
+  | ranking.1         | 第二名   | 第二名   | Second place      | 第二名          | 第二名       |
+  | ranking.2         | 第三名   | 第三名   | Third place       | 第三名          | 第三名       |
+  | names\.0\.name    | 张三     | 张三     | Zhang San         | 张三            | 张三         |
+  | names\.1\.name    | 李四     | 李四     | Li Si             | 李四            | 李四         |
 
 ## 注意事项
 
